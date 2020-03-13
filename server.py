@@ -1,0 +1,31 @@
+import json
+from flask import Flask, request, Response
+app = Flask(__name__)
+stats = {
+    'attempts': 0,
+    'success': 0,
+}
+# create the counters
+@app.route('/')
+def hello():
+    return f'Hello, user! stats={stats}'
+#main page server
+@app.route('/auth', methods=['POST'])
+def auth():
+    stats['attempts'] += 1
+    data = request.json
+    login = data['login']
+    password = data['password']
+
+    with open('users.json') as users_file:
+        users = json.load(users_file)
+    if login in users and users[login] == password:
+        status_code = 200
+        stats['success'] += 1
+    else:
+        status_code = 401
+    return Response(status=status_code)
+    # check correct combo login and passw and plus count
+if __name__ == '__main__':
+    app.run()
+# run server
